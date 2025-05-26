@@ -1,0 +1,249 @@
+
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POBLACION Interactive Map</title>
+
+  <link rel="stylesheet" href="./resources/ol.css">
+  <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+  <link rel="stylesheet" href="resources/horsey.min.css">
+  <link rel="stylesheet" href="resources/ol3-search-layer.min.css">
+  <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+  <link rel="stylesheet" href="./resources/qgis2web.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f3f0fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background-color: #5e4b8b;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .logo-circle {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #000;
+      background-color: #fff;
+    }
+
+    .logo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .title-group h1 {
+      font-size: 20px;
+    }
+
+    .title-group h2 {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .title-group h3 {
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .search-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .search-box {
+      background-color: #e7e1f5;
+      border-radius: 12px;
+      display: flex;
+      width: 90%;
+      max-width: 500px;
+      height: 45px;
+      align-items: center;
+      border: 1px solid #5e4b8b;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .search-box input::placeholder {
+      color: #888;
+    }
+
+    #map {
+      width: 95%;
+      max-width: 650px;
+      height: 600px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .info-panel {
+      width: 95%;
+      max-width: 650px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+    }
+
+    .info-header {
+      background-color: #dcd1f2;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-style: italic;
+      border-bottom: 1px solid #ccc;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    .info-content {
+      padding: 20px;
+      min-height: 100px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .ol-control {
+      background-color: rgba(255,255,255,.4)!important;
+      padding: 2px!important;
+    }
+
+    .ol-control > * {
+      background-color: #f8f8f8!important;
+      color: #444!important;
+      border-radius: 0;
+    }
+
+    .ol-control > *:hover {
+      background-color: rgba(248,248,248,0.7)!important;
+    }
+
+    .search-layer-input-search {
+      background-color: #f8f8f8!important;
+    }
+
+    .ol-attribution a,
+    .gcd-gl-input::placeholder,
+    .search-layer-input-search::placeholder {
+      color: #444!important;
+    }
+
+    @media (max-width: 768px) {
+      .logo-circle {
+        width: 45px;
+        height: 45px;
+      }
+
+      .title-group h2 {
+        font-size: 24px;
+      }
+
+      #map {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo-circle">
+      <img src="images/psu.jpeg" alt="PSU Logo">
+    </div>
+    <div class="title-group">
+      <h1>POBLACION, Taytay, Palawan</h1>
+      <h2>INTERACTIVE MAP</h2>
+      <h3>By: Pampanga, Mayvill Joy D., Miclat, Melquisedic P.</h3>
+    </div>
+  </header>
+
+  <div id="map">
+    <div id="popup" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
+  </div>
+
+  <div class="info-panel">
+    <div class="info-header">Location Information</div>
+    <div class="info-content">
+      Click a place on the map to see its details, but not all places have details.
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="resources/qgis2web_expressions.js"></script>
+  <script src="resources/proj4.js"></script>
+  <script>proj4.defs('EPSG:4326','+proj=longlat +datum=WGS84 +no_defs');</script>
+  <script src="resources/functions.js"></script>
+  <script src="resources/ol.js"></script>
+  <script src="resources/horsey.min.js"></script>
+  <script src="resources/ol3-search-layer.js"></script>
+  <script src="resources/ol-layerswitcher.js"></script>
+
+  <!-- Layer Scripts -->
+  <script src="layers/poblacion_0.js"></script>
+  <script src="layers/poblacion_building_1.js"></script>
+  <script src="layers/Poblacion_water_2.js"></script>
+  <script src="layers/Poblacion_waterways_3.js"></script>
+  <script src="layers/Poblacion_transport_4.js"></script>
+  <script src="layers/Poblacion_Place_5.js"></script>
+  <script src="layers/Poblacion_roads_6.js"></script>
+
+  <!-- Style Scripts -->
+  <script src="styles/poblacion_0_style.js"></script>
+  <script src="styles/poblacion_building_1_style.js"></script>
+  <script src="styles/Poblacion_water_2_style.js"></script>
+  <script src="styles/Poblacion_waterways_3_style.js"></script>
+  <script src="styles/Poblacion_transport_4_style.js"></script>
+  <script src="styles/Poblacion_Place_5_style.js"></script>
+  <script src="styles/Poblacion_roads_6_style.js"></script>
+
+  <script src="layers/layers.js"></script>
+  <script src="resources/Autolinker.min.js"></script>
+  <script src="resources/qgis2web.js"></script>
+
+</body>
+</html>
